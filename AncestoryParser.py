@@ -4,13 +4,17 @@ import re
 import argparse
 
 class Person:
+    birthPlace: str
+    deathPlace: str
+
     def __init__(self, person_id):
         self.id = int(person_id)
         self.name = None
         self.relations = []
-        self.city = None
-        self.birthDate = None
-        self.deathDate = None
+        self.birthDate = ''
+        self.birthPlace = ''
+        self.deathDate = ''
+        self.deathPlace = ''
 
 
 class Relation:
@@ -36,24 +40,18 @@ def process_file(file_contents, file_id):
     person_name = str(soup.body.main.div.b)
     person_name = person_name.strip('<b/>')
 
-    # Birth date and place
-    person_birth_date_search = re.search('born\s+([\d\w]{2,15})\s+in\s+([\w\s,.]{2,20})\s+(and)\s+died\s+([\d\w]{2,15})\s+in\s+([\w\s,]{2,30}).', soup.body.main.div.text)
-    if person_birth_date_search is not None:
-        person_birth_date = str(person_birth_date_search.group(1))
-        person_birth_place = str(person_birth_date_search.group(2))
-        person_death_date = str(person_birth_date_search.group(4))
-        person_death_place = str(person_birth_date_search.group(5))
-    else:
-        person_birth_date = None
-        person_birth_place = None
-        person_death_date = None
-        person_death_place = None
-
     # Init object
     p = Person(file_id)
     p.name = person_name
-    p.birthDate = person_birth_date
-    p.deathDate = person_death_date
+
+    # Birth date and place
+    person_birth_date_search = re.search('born\s+([\d\w]{2,15})\s+in\s+([\w\s,.]{2,20})\s+(and)\s+died\s+([\d\w]{2,15})\s+in\s+([\w\s,]{2,30}).', soup.body.main.div.text)
+    if person_birth_date_search is not None:
+        p.birthDate = str(person_birth_date_search.group(1))
+        p.birthPlace = str(person_birth_date_search.group(2)).strip(',')
+        p.deathDate = str(person_birth_date_search.group(4))
+        p.deathPlace = str(person_birth_date_search.group(5))
+
     return p
 
 #todo: make function to check all relations and make sure they exist
@@ -78,7 +76,7 @@ def generate_GEDCOM(person_list):
 1 SUBM @U1@
 '''
     for _person in person_list:
-        print(_person.name, _person.id, _person.birthDate, _person.deathDate)
+        print(_person.name, _person.id, _person.birthDate, _person.birthPlace,_person.deathDate, _person.deathPlace)
         output_string += "0 @I" + str(_person.id) + "@ INDI\n"
         output_string += "1 NAME " + str(transform_name(_person.name)) + '/\n'
     output_string += '''0 @U1@ SUBM
