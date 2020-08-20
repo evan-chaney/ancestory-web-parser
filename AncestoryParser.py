@@ -86,19 +86,19 @@ def generate_GEDCOM(person_list):
     output_file.write(output_string)
     output_file.close()
 
+if __name__ == '__main__':
+    personList = []
 
-personList = []
+    args = process_args()
+    for web_dir in args.web_roots:
+        for f in os.listdir(web_dir):
+            personID = f.split('-')[1].split('.')[0]
+            if personID.isnumeric():
+                retObj = process_file(open(web_dir + '/' + f).read(), personID)
+                if retObj is not None:
+                    personList.append(retObj)
 
-args = process_args()
-for web_dir in args.web_roots:
-    for f in os.listdir(web_dir):
-        personID = f.split('-')[1].split('.')[0]
-        if personID.isnumeric():
-            retObj = process_file(open(web_dir + '/' + f).read(), personID)
-            if retObj is not None:
-                personList.append(retObj)
-
-generate_GEDCOM(personList)
-#for Person in person_list:
-#    print(Person.name,Person.person_id)
+    generate_GEDCOM(personList)
+    #for Person in person_list:
+    #    print(Person.name,Person.person_id)
 
