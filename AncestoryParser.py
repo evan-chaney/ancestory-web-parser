@@ -28,14 +28,32 @@ def process_args():
     return parser.parse_args()
 
 
+
 def process_file(file_contents, file_id):
     soup = BeautifulSoup(file_contents, 'html.parser')
-    name = str(soup.body.main.div.b)
-    name = name.strip('<b/>')
 
+    # Name
+    person_name = str(soup.body.main.div.b)
+    person_name = person_name.strip('<b/>')
+
+    # Birth date and place
+    person_birth_date_search = re.search('born\s+([\d\w]{2,15})\s+in\s+([\w\s,.]{2,20})\s+(and)\s+died\s+([\d\w]{2,15})\s+in\s+([\w\s,]{2,30}).', soup.body.main.div.text)
+    if person_birth_date_search is not None:
+        person_birth_date = str(person_birth_date_search.group(1))
+        person_birth_place = str(person_birth_date_search.group(2))
+        person_death_date = str(person_birth_date_search.group(4))
+        person_death_place = str(person_birth_date_search.group(5))
+    else:
+        person_birth_date = None
+        person_birth_place = None
+        person_death_date = None
+        person_death_place = None
+
+    # Init object
     p = Person(file_id)
-    p.name = name
-
+    p.name = person_name
+    p.birthDate = person_birth_date
+    p.deathDate = person_death_date
     return p
 
 #todo: make function to check all relations and make sure they exist
@@ -60,7 +78,7 @@ def generate_GEDCOM(person_list):
 1 SUBM @U1@
 '''
     for _person in person_list:
-        print(_person.name, _person.id)
+        print(_person.name, _person.id, _person.birthDate, _person.deathDate)
         output_string += "0 @I" + str(_person.id) + "@ INDI\n"
         output_string += "1 NAME " + str(transform_name(_person.name)) + '/\n'
     output_string += '''0 @U1@ SUBM
