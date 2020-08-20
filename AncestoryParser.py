@@ -3,7 +3,7 @@ import os
 import re
 
 
-class person:
+class Person:
     def __init__(self, id):
         self.id = int(id)
         self.name = None
@@ -13,11 +13,11 @@ class person:
         self.deathDate = None
 
 
-class relation:
+class Relation:
     def __init__(self, id):
-        #ID of other person
+        #ID of other Person
         self.id = id
-        #Type of relation (e.g. brother, mother, etc)
+        #Type of Relation (e.g. brother, mother, etc)
         self.relation = None
 
 
@@ -26,20 +26,22 @@ def process_file(file_contents, file_id):
     name = str(soup.body.main.div.b)
     name = name.strip('<b/>')
 
-    p = person(id)
+    p = Person(id)
     p.name = name
 
     return p
 
 #todo: make function to check all relations and make sure they exist
 
+
 def transform_name(name):
+    '''Transform a name into the proper format for writing to GEDCOM'''
     return re.sub(' ', ' /', name)
 
 
-def generate_GEDCOM(personList):
-    outputFile = open('output.ged', 'w')
-    outputString = '''0 HEAD
+def generate_GEDCOM(person_list):
+    output_file = open('output.ged', 'w')
+    output_string = '''0 HEAD
 1 SOUR PAF
 2 NAME Ancestry Online
 2 VERS 5.5.1
@@ -50,16 +52,16 @@ def generate_GEDCOM(personList):
 1 CHAR ANSEL
 1 SUBM @U1@
 '''
-    for person in personList:
-        print(person.name, person.id)
-        outputString += "0 @I"+str(person.id) + "@ INDI\n"
-        outputString += "1 NAME " + str(transform_name(person.name)) + '/\n'
-    outputString += '''0 @U1@ SUBM
+    for _person in person_list:
+        print(_person.name, _person.id)
+        output_string += "0 @I" + str(_person.id) + "@ INDI\n"
+        output_string += "1 NAME " + str(transform_name(_person.name)) + '/\n'
+    output_string += '''0 @U1@ SUBM
 1 NAME Submitter
 0 TRLR'''
 
-    outputFile.write(outputString)
-    outputFile.close()
+    output_file.write(output_string)
+    output_file.close()
 
 
 personList = []
@@ -72,6 +74,6 @@ for f in os.listdir(''):
             personList.append(retObj)
 
 generate_GEDCOM(personList)
-#for person in personList:
-#    print(person.name,person.id)
+#for Person in person_list:
+#    print(Person.name,Person.id)
 
